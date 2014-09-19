@@ -28,16 +28,14 @@
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav navbar-right">
-            <li class="active"><a href="#">Log In</a></li>
-            <li class="active"><a href="#" ng-click="logout()">Log out</a></li>
+            <li ng-hide="currentUser"><a href="#/login">Log In</a></li>
+            <li ng-show="currentUser"><a href="" ng-click="logout()">Log out</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </div>
 
   <div ng-view class="container"></div>
-
-  <div>Angular seed app: v<span app-version></span></div>
 
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>

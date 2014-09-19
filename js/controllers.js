@@ -7,51 +7,41 @@ angular.module('myApp.controllers', [])
   .controller('LandingPageController',[function(){
 
   }])
-  .controller('WaitListController',['$scope', '$firebase', function($scope, $firebase){
-  		var partiesRef = new Firebase('https://crackling-fire-6014.firebaseio.com/parties');
+  .controller('WaitListController',['$scope', 'partyService', 'textMessageService', 'authService',
+                    function($scope, partyService, textMessageService, authService){
   		
-  		$scope.parties = $firebase(partiesRef);
+      authService.getCurrentUser().then(function(user){
+        if (user){
+          $scope.parties = partyService.getPartiesByUserId(user.id);
+           console.log($scope.parties);
+        };
+      })
 
   		$scope.newParty   = {name: '', phone: '', size: '', done: false, notifield: 'No'};
 
   		$scope.saveParty = function(){
-  			$scope.parties.$add($scope.newParty);
+  			partyService.saveParty($scope.newParty, $scope.currentUser.id);
   			$scope.newParty   = {name: '', phone: '', size: '', done: false, notifield: 'No'};
   		};
 
   		$scope.sendTextMessage = function(party){
-  			var textMessageRef = new Firebase('https://crackling-fire-6014.firebaseio.com/textMessages');
-  			var textMessages = $firebase(textMessageRef);
-  			var newTextMessage = {
-  				phoneNumber: party.phone,
-  				size: party.size,
-  				name: party.name
-  			};
-  			textMessages.$add(newTextMessage);
-  			party.notifield = 'Yes';
-  			$scope.parties.$save(party.$id);
-  		}
+  			textMessageService.sendTextMessage(party, $scope.currentUser.id);
+  		};
   }])
-  .controller('AuthController',['$scope','$firebaseSimpleLogin', function($scope, $firebaseSimpleLogin){
-  		var authRef = new Firebase('https://crackling-fire-6014.firebaseio.com/');
-  		var auth    = $firebaseSimpleLogin(authRef);
+  .controller('AuthController',['$scope','authService', 
+                function($scope, authService){
 
   		$scope.user = {email: '', password: ''};
 
   		$scope.register = function(){
-  			auth.$createUser($scope.user.email, $scope.user.password)
-  				.then(function(data){
-  					console.log(data);
-  				});
+  			authService.register($scope.user);
   		};
 
   		$scope.login = function(){
-  			auth.$login('password', $scope.user).then(function(data){
-  				console.log(data);
-  			});
+  			authService.login($scope.user);
   		};
 
-  		$scope.logout() = function(){
-  			auth.$logout();
+  		$scope.logout = function(){
+  			authService.logout();
   		}
   }]);
